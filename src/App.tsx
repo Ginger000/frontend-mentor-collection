@@ -1,14 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import './App.css'
+import {createBrowserRouter, RouterProvider, createRoutesFromElements, Route} from 'react-router-dom'
+import { AppLayout } from './components/AppLayout'
+import { TicTacToe } from './projects/Tic-Tac-Toe/TicTacToe'
+import HomePage from './HomePage'
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route element={<AppLayout/>} >
+        <Route path='*' element={<HomePage/>}></Route>
+        <Route path='projects/Tic-Tac-Toe' element={<TicTacToe/>}></Route>
+      </Route>
+    )
+  )
 
   return (
     <>
-    <h1>Hello Ginger</h1>
+      <RouterProvider router={router}/>
+
     </>
   )
 }
