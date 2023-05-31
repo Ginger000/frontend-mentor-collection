@@ -1,0 +1,16 @@
+$squareLen :50px;
+
+.square {
+  display: inline-block;
+  width: $squareLen;
+  height: $squareLen;
+  border: 1px solid rgb(0, 0, 0);
+  text-align: center;
+  box-sizing: border-box;
+  //solve the problem that text inside the square is causing a shift in the layout when it changes from a space to a character
+  //using vertical align or unicode for space
+  // vertical-align: top;
+  line-height:$squareLen;
+}
+
+
