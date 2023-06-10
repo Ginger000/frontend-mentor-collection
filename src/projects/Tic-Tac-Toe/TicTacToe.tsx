@@ -9,7 +9,12 @@ export const TicTacToe = () => {
   const [win, setWin] = useState('pending')
   const [nextPlayer, setNextPlayer] = useState('X')
 
-  console.log(board)
+  const backToHistory = (idx) => {
+    setBoard(history[idx])
+  }
+
+  console.log('board', board)
+  console.log('history', history)
   const boardDisplay = board.map((row,idx1) => (
     <div key={`0, ${idx1}`}>
       {row.map((col,idx2) => (
@@ -22,7 +27,7 @@ export const TicTacToe = () => {
     <>
       <div> {win!=='pending' ? `Winner is ${win}`: `Next player is ${nextPlayer}` }  : </div> 
       <div>{boardDisplay}</div>
-      {history.map()}
+      {history.map((record, idx)=><button onClick={()=>backToHistory(idx)} key={idx}>Go to move #{idx}</button>)}
     </>
     
   )
@@ -42,6 +47,7 @@ type SquareProps =
 }
 function Square({ position, value, setBoard, board, win, setWin, nextPlayer, setNextPlayer, setHistory} : SquareProps) {
   
+  // It's better to move the handleClick to parent so that omit many prop drillings
   const handleClick = () => {
     if(value == '\u00A0' && win == 'pending'){
       const newBoard = board.map(arr=>[...arr])
