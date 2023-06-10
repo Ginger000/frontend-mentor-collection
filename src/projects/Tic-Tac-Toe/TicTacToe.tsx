@@ -1,25 +1,45 @@
-import React, {useState} from 'react'
+import React, {useState, useCallback} from 'react'
 import './style.scss'
+
+enum Player {
+  X = 'X',
+  O = 'O',
+  Pending = 'pending'
+}
+
+type Board = string[][]
 
 export const TicTacToe = () => {
   const initialBoard = Array.from({ length: 3 }, () => new Array(3).fill('\u00A0'));
-  const [board, setBoard] = useState(initialBoard);
-  const [history, setHistory] = useState([initialBoard])
+  const [board, setBoard] = useState<Board>(initialBoard);
+  const [history, setHistory] = useState<Board[]>([initialBoard])
   // 'pening' is pending, player is win
-  const [win, setWin] = useState('pending')
-  const [nextPlayer, setNextPlayer] = useState('X')
+  const [win, setWin] = useState<Player> (Player.Pending)
+  const [nextPlayer, setNextPlayer] = useState<Player> (Player.X)
 
-  const backToHistory = (idx) => {
+  const backToHistory = (idx:number) => {
     setBoard(history[idx])
   }
 
-  console.log('board', board)
-  console.log('history', history)
+  const handleClick = useCallback((idx1:number,idx2: number,col:string):void => {
+    if(col === '\u00A0' && win === 'pending'){
+      const newBoard = board.map(arr=>[...arr])
+      newBoard[idx1][idx2] = nextPlayer
+      setBoard(newBoard)
+      const res = isWin(newBoard, nextPlayer)
+      setWin(res)
+      setNextPlayer(nextPlayer === Player.X ? Player.O:Player.X)
+      setHistory((prev)=>[...prev, newBoard])
+    }  
+  },[board, win, nextPlayer])
+
+  //console.log('board', board) remove for production
+  //console.log('history', history) remove for production
   const boardDisplay = board.map((row,idx1) => (
     <div key={`0, ${idx1}`}>
       {row.map((col,idx2) => (
 
-        <Square key={`${idx1}, ${idx2}`} position={[idx1, idx2]} value={col} setBoard={setBoard} board={board} win={win} setWin={setWin} nextPlayer={nextPlayer} setNextPlayer={setNextPlayer} setHistory={setHistory}  /> 
+        <Square key={`${idx1}, ${idx2}`} handleClick={()=>handleClick(idx1,idx2,col)} value={col} /> 
       ))}
     </div>
   ));
@@ -35,36 +55,14 @@ export const TicTacToe = () => {
 
 type SquareProps = 
 {
-  position: number[]
-  value:string | null,
-  setBoard:(board:string[][])=>void,
-  win:string,
-  setWin:(status:string)=>void,
-  board:string[][],
-  nextPlayer:string,
-  setNextPlayer:(player:string)=>void, 
-  setHistory:(newBoard:string[][]) => void
+  handleClick:(idx1:number, idx2:number, col:string) => void
+  value:string ,
 }
-function Square({ position, value, setBoard, board, win, setWin, nextPlayer, setNextPlayer, setHistory} : SquareProps) {
-  
-  // It's better to move the handleClick to parent so that omit many prop drillings
-  const handleClick = () => {
-    if(value == '\u00A0' && win == 'pending'){
-      const newBoard = board.map(arr=>[...arr])
-      newBoard[position[0]][position[1]] = nextPlayer
-      setBoard(newBoard)
-      const res = isWin(newBoard, nextPlayer)
-      setWin(res)
-      setNextPlayer(nextPlayer === 'X' ? 'O':'X')
-      setHistory((prev)=>[...prev, newBoard])
-    }  
-  }
-  
-  // disabled attribute is not a valid attribute for the span element. It's typically used with form elements
+function Square({ handleClick, value} : SquareProps):JSX.Element {
   return <span className="square" onClick={handleClick} > {value}</span>;
 }
 
-function isWin(board:string[][], player:string) {
+function isWin(board:Board, player:Player) {
   for(let i = 0; i < 3; i++) {
     if(board[i][0] == player && board[i][1] == player && board[i][2]==player) return player
     if(board[0][i] == player && board[1][i] == player && board[2][i] == player )
@@ -73,5 +71,5 @@ function isWin(board:string[][], player:string) {
   if(board[0][0] == player && board[1][1] == player && board[2][2] == player) return player
   if(board[2][0] == player && board[1][1] == player && board[0][2] == player)
   return player
-  return 'pending'
+  return Player.Pending
 }
